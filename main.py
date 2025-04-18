@@ -1,48 +1,20 @@
-import os
-import shutil
-from datetime import datetime
+import tkinter as tk
+from tkinter import filedialog
+from filesByDate import organize_files_by_date
 
-SOURCE_DIR = 'D:\\learn\\test\\fileCopy'
-DEST_ROOT = 'D:\\learn\\test\\filePatse'
-
-
-def get_create_date(file_path):
-    try:
-        # ใช้ create date ของระบบไฟล์
-        timestamp = os.path.getctime(file_path)
-        return datetime.fromtimestamp(timestamp)
-    except Exception:
-        return None
-
-def organize_files_by_date(source_dir):
-    print(f"Starting file organization from {source_dir}...")
-    for foldername, _, filenames in os.walk(source_dir):
-        print(f"Scanning folder: {foldername}")
-        for filename in filenames:
-            file_path = os.path.join(foldername, filename)
-            try:
-                date = get_create_date(file_path)
-                if date is None:
-                    continue
-                year = str(date.year)
-                month = str(date.month).zfill(2)
-                
-                # โฟลเดอร์ปลายทาง
-                dest_folder = os.path.join(DEST_ROOT, year, month)
-                os.makedirs(dest_folder, exist_ok=True)
-
-                # ตรวจซ้ำชื่อไฟล์
-                dest_file_path = os.path.join(dest_folder, filename)
-                counter = 1
-                while os.path.exists(dest_file_path):
-                    name, ext = os.path.splitext(filename)
-                    dest_file_path = os.path.join(dest_folder, f"{name}_{counter}{ext}")
-                    counter += 1
-
-                shutil.copy2(file_path, dest_file_path)
-                print(f"Copied: {file_path} -> {dest_file_path}")
-            except Exception as e:
-                print(f"Error copying {file_path}: {e}")
+def select_folder(prompt="Select folder"):
+    root = tk.Tk()
+    root.withdraw()  # ซ่อนหน้าต่างหลัก
+    print(prompt)
+    folder = filedialog.askdirectory(title=prompt)
+    if not folder:
+        print("\033[91m❌ Folder not selected. Exiting.\033[0m")
+        exit(1)
+    return folder
 
 if __name__ == "__main__":
-    organize_files_by_date(SOURCE_DIR)
+    source_dir = select_folder("📂 Select source folder (e.g. Google Photos)")
+    dest_dir = select_folder("📁 Select destination folder")
+
+    organize_files_by_date(source_dir, dest_dir)
+    print("\033[92m✅ File organization completed successfully.\033[0m")
