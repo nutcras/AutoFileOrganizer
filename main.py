@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
-from filesByDate import organize_files_by_date
+from file_organizer import FileOrganizer
 
 def select_folder(prompt="Select folder"):
     root = tk.Tk()
@@ -16,5 +16,10 @@ if __name__ == "__main__":
     source_dir = select_folder("📂 Select source folder (e.g. Google Photos)")
     dest_dir = select_folder("📁 Select destination folder")
 
-    organize_files_by_date(source_dir, dest_dir)
-    print("\033[92m✅ File organization completed successfully.\033[0m")
+    try:
+        organizer = FileOrganizer(source_dir, dest_dir)
+        organizer.organize_files()
+        print("\033[92m✅ File organization completed successfully.\033[0m")
+    except Exception as e:
+        print(f"\033[91m❌ An error occurred: {e}\033[0m")
+        exit(1)
