@@ -1,12 +1,13 @@
 import json
-import os
 from datetime import datetime
+from pathlib import Path
 from PIL import Image
 from PIL.ExifTags import TAGS 
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
 
-def get_create_date(image_path):
+def get_create_date(image_path: Path | str):
+    image_path = Path(image_path)
     json_path = find_metadata_file(image_path)
     if not json_path:
        return get_date_taken(image_path) 
@@ -14,8 +15,8 @@ def get_create_date(image_path):
        return get_date_from_json(json_path)
 
 
-def get_date_taken(file_path):
-    ext = os.path.splitext(file_path)[1].lower()
+def get_date_taken(file_path: Path):
+    ext = file_path.suffix.lower()
 
     if ext in ['.jpg', '.jpeg', '.png']:
         return get_image_date(file_path)
@@ -25,9 +26,9 @@ def get_date_taken(file_path):
         print(f"Unsupported file type: {file_path}")
         return get_create_date_last_update_date(file_path)
 
-def get_video_date(file_path):
+def get_video_date(file_path: Path):
     try:
-        parser = createParser(file_path)
+        parser = createParser(str(file_path))
         if not parser:
             print(f"Unable to parse video file: {file_path}")
             return None
@@ -41,7 +42,7 @@ def get_video_date(file_path):
     
     return get_create_date_last_update_date(file_path)
 
-def get_image_date(file_path):
+def get_image_date(file_path: Path):
     try:
         image = Image.open(file_path)
         exif_data = image.getexif()
@@ -54,7 +55,7 @@ def get_image_date(file_path):
             if tag == 'DateTimeOriginal':
                 date_str = value
                 break
-            elif tag == 'DateTime':  # ใช้แทนถ้า Original ไม่มี
+            elif tag == 'DateTime':
                 date_str = value
         if date_str:
             return datetime.strptime(date_str, '%Y:%m:%d %H:%M:%S')
@@ -63,17 +64,17 @@ def get_image_date(file_path):
     
     return get_create_date_last_update_date(file_path)
 
-def get_create_date_last_update_date(image_path):
+def get_create_date_last_update_date(image_path: Path):
     try:
-        timestamp = os.path.getctime(image_path)  
+        timestamp = image_path.stat().st_ctime
         return datetime.fromtimestamp(timestamp)
     except Exception as e:
         print(f"Error getting create date for {image_path}: {e}")
     return None
 
-def get_date_from_json(json_path):
+def get_date_from_json(json_path: Path):
     try:
-        with open(json_path, 'r', encoding='utf-8') as f:
+        with json_path.open('r', encoding='utf-8') as f:
             data = json.load(f)
 
         timestamp = data.get("photoTakenTime", {}).get("timestamp")
@@ -84,18 +85,17 @@ def get_date_from_json(json_path):
     return None
     
 
-def find_metadata_file(image_path):
-    folder = os.path.dirname(image_path)
-    image_name = os.path.basename(image_path)
+def find_metadata_file(image_path: Path):
+    folder = image_path.parent
+    image_name = image_path.name
 
-    for f in os.listdir(folder):
-        if f.startswith(image_name) and f.endswith(".json"):
-            return os.path.join(folder, f)
+    for f in folder.iterdir():
+        if f.name.startswith(image_name) and f.suffix == '.json':
+            return f
 
-    # ลองจับคู่ชื่อแบบหลวม เช่น ไม่รวม .jpg
-    image_name_no_ext = os.path.splitext(image_name)[0]
-    for f in os.listdir(folder):
-        if f.startswith(image_name_no_ext) and f.endswith(".json"):
-            return os.path.join(folder, f)
+    image_name_no_ext = image_path.stem
+    for f in folder.iterdir():
+        if f.name.startswith(image_name_no_ext) and f.suffix == '.json':
+            return f
 
     return None
