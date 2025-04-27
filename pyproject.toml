@@ -1,0 +1,10 @@
+[project]
+name = "autofileorganizer"
+version = "0.1.0"
+description = "a smart file organizing script that scans all folders in a given drive, detects the creation date of every file, and copies them into folders grouped by year and month."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "hachoir>=3.3.0",
+    "pillow>=11.2.1",
+]
