@@ -3,11 +3,16 @@ from pathlib import Path
 from utils import get_create_date
 
 class FileOrganizer:
+    ALLOWED_EXTENSIONS = {
+        # Images
+        '.jpg', '.jpeg', '.png', '.webp',
+        # Videos
+        '.mp4', '.mov', '.avi', '.mkv', '.wmv', '.webm',
+    }
+    
     def __init__(self, source_dir: str | Path, dest_dir: str | Path):
         self.source_dir = Path(source_dir)
         self.dest_dir = Path(dest_dir)
-        print(f"Source directory: {self.source_dir}")
-        print(f"Destination directory: {self.dest_dir}")
         
     def organize_files(self):
         print(f"Starting file organization from {self.source_dir}...")
@@ -20,7 +25,7 @@ class FileOrganizer:
     
     def _handle_file(self, file_path: Path):
         try:
-            if file_path.suffix.lower() == '.json':
+            if file_path.suffix.lower() not in self.ALLOWED_EXTENSIONS:
                 return
             
             print(f"Found file: {file_path.name}")
