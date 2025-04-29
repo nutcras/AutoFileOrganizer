@@ -34,3 +34,22 @@ D:\
     └── 2025\
         ├── 01\
         └── 04\
+
+## Installation
+
+Use the package manager [uv](https://docs.astral.sh/uv/getting-started/installation/) to install.
+
+```bash
+uv venv   
+
+source .venv/bin/activate  # activate (Linux/Mac) 
+.venv\Scripts\activate.bat  # activate (Windows)
+
+uv pip sync
+```
+
+## Usage
+
+```python
+python main,py
+```
