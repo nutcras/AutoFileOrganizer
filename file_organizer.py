@@ -7,7 +7,7 @@ class FileOrganizer:
         # Images
         '.jpg', '.jpeg', '.png', '.webp',
         # Videos
-        '.mp4', '.mov', '.avi', '.mkv', '.wmv', '.webm',
+        '.mp4', '.mov', '.avi', '.mkv', '.wmv', '.webm', '.3gp', '.m4v',
     }
     
     def __init__(self, source_dir: str | Path, dest_dir: str | Path):
